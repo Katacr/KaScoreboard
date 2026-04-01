@@ -1,0 +1,21 @@
+name: KaScoreboard
+version: ${version}
+main: org.katacr.kaScoreboard.KaScoreboard
+api-version: 1.18
+author: Katacr
+description: 一个轻量级的计分板插件，支持PAPI和自定义内容
+commands:
+  kascoreboard:
+    description: KaScoreboard 主命令
+    usage: /kascoreboard [show|on|off|list|reload|help]
+    aliases: [ksb]
+permissions:
+  kascoreboard.use:
+    description: 使用计分板
+    default: true
+  kascoreboard.reload:
+    description: 重载计分板配置
+    default: op
+  kascoreboard.admin:
+    description: 管理员权限
+    default: op

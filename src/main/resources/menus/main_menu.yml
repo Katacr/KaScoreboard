@@ -1,0 +1,149 @@
+# 默认计分板配置
+name: "主菜单"
+description: "服务器的默认计分板显示"
+type: MENU
+
+# 滚动模式: loop（循环滚动）或 clamp（边界停止）
+scroll-mode: clamp
+
+# 计分板标题
+title:
+  update: 5 # 每5tick更新一次
+  text:
+    - condition: '%player_is_op% == true'   # 如果玩家是管理员
+      allow: # 显示达成判断条件的文本
+        - "管理员菜单"
+      deny: # 显示未达成判断条件的文本
+        - "玩家菜单"
+
+# 菜单构建内容（支持PlaceholderAPI变量）
+header:
+  info1:
+    update: -1
+    text:
+      - condition: '%player_is_op% == true'   # 如果玩家是管理员
+        allow: # 显示达成判断条件的文本
+          - "你好，欢迎使用菜单"
+        deny: # 显示未达成判断条件的文本
+          - "玩家你好，欢迎使用菜单"
+  info2:
+    update: -1
+    text: '前所未有的计分板菜单'
+
+footer:
+  text1:
+    update: -1
+    text: '滚轮滚动菜单'
+  text2:
+    update: -1
+    text: '左键选择'
+  text3:
+    update: -1
+    text: '右键返回'
+
+
+buttons:
+  button-1:
+    update: -1
+    text:
+      un-selected: '&7button-1'
+      selected: '&abutton-1'
+  button-2:
+    update: -1
+    text:
+      un-selected: '&7button-2'
+      selected: '&abutton-2'
+  button-3:
+    update: -1
+    text:
+      un-selected: '&7button-3'
+      selected: '&abutton-3'
+  button-4:
+    update: -1
+    text:
+      un-selected: '&7button-4'
+      selected: '&abutton-4'
+  button-5:
+    update: -1
+    text:
+      un-selected: '&7button-5'
+      selected: '&abutton-5'
+  button-6:
+    update: -1
+    text:
+      un-selected: '&7button-6'
+      selected: '&abutton-6'
+  button-7:
+    update: -1
+    text:
+      un-selected: '&7button-7'
+      selected: '&abutton-7'
+  button-8:
+    update: -1
+    text:
+      un-selected: '&7button-8'
+      selected: '&abutton-8'
+  button-9:
+    update: -1
+    text:
+      un-selected: '&7button-9'
+      selected: '&abutton-9'
+  button-10:
+
+    update: -1
+
+    text:
+
+      un-selected: '&7button-10'
+
+      selected: '&abutton-10'
+
+  button-11:
+
+    update: -1
+
+    text:
+
+      un-selected: '&7button-11'
+
+      selected: '&abutton-11'
+
+  button-12:
+
+    update: -1
+
+    text:
+
+      un-selected: '&7button-12'
+
+      selected: '&abutton-12'
+
+  button-13:
+
+    update: -1
+
+    text:
+
+      un-selected: '&7button-13'
+
+      selected: '&abutton-13'
+
+  button-14:
+
+    update: -1
+
+    text:
+
+      un-selected: '&7button-14'
+
+      selected: '&abutton-14'
+
+  button-15:
+
+    update: -1
+
+    text:
+
+      un-selected: '&7button-15'
+
+      selected: '&abutton-15'

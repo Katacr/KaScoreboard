@@ -1,0 +1,52 @@
+# 默认计分板配置
+name: "默认计分板"
+description: "服务器的默认计分板显示"
+
+# 计分板标题
+title:
+  update: 5 # 每5tick更新一次
+  text:
+    - condition: '%player_is_op% == true'   # 如果玩家是管理员
+      allow: # 显示达成判断条件的文本
+        - "&a服&7务器管理"
+        - "&7服&a务&7器管理"
+        - "&7服务&a器&7管理"
+        - "&7服务器&a管&7理"
+        - "&7服务器管&a理"
+      deny: # 显示未达成判断条件的文本
+        - "&c服&7务器信息"
+        - "&7服&c务&7器信息"
+        - "&7服务&c器&7信息"
+        - "&7服务器&c器&7信息"
+        - "&7服务器&c信&7息"
+        - "&7服务器信&c息"
+
+# 计分板内容（支持PlaceholderAPI变量）
+lines: # 每个子键对应一行
+  name:
+    update: -1 # 持续不更新
+    text:
+      - condition: '%player_is_op% == true'   # 如果玩家是管理员
+        allow:
+          - "&c管理员: &f%player_name%"
+        deny:
+          - "&e玩家: &f%player_name%"
+  level:
+    update: 40
+    text:
+      - "&e等级: &6%player_level%"
+  time:
+    update: 40
+    text:
+      - "&6时间: &6%server_time_HH:mm:ss%"
+  location :
+    update: 3
+    text:
+      - "&6位置: &6%player_world% , &6%player_x% , &6%player_y% , &6%player_z%"
+
+# 显示条件（可选）
+# conditions:
+#   - type: world
+#     worlds: ["world", "world_nether", "world_the_end"]
+#   - type: permission
+#     permission: "kascoreboard.see.default"

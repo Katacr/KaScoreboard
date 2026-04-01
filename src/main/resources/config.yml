@@ -1,0 +1,43 @@
+# KaScoreboard 配置文件
+
+# 数据库设置
+database:
+  # 存储类型: SQLite 或 MySQL
+  type: SQLite
+
+  # MySQL 配置 (当 type 为 MySQL 时使用)
+  mysql:
+    host: localhost
+    port: 3306
+    database: kataboard
+    username: root
+    password: password
+    # 连接池配置
+    pool:
+      minimum-idle: 5
+      maximum-pool-size: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # SQLite 配置 (当 type 为 SQLite 时使用)
+  sqlite:
+    # 数据库文件名
+    filename: data.db
+
+
+# 更新间隔（以tick为单位，20 tick = 1秒）
+# 这是计分板全局检查更新的间隔，建议设置为1-5tick以获得最佳效果
+# 设置为0则不自动更新
+update-interval: 1
+
+# 菜单更新间隔（以tick为单位）
+# 菜单的自动刷新间隔，建议设置为5-10tick
+# 设置为0则不自动更新（仅在滚动时刷新）
+menu-update-interval: 10
+
+# 是否在玩家登录时自动显示计分板
+auto-show: true
+
+# 是否启用PlaceholderAPI支持
+placeholderapi: true
