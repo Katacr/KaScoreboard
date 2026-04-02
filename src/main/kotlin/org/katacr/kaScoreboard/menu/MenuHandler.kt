@@ -164,23 +164,12 @@ class MenuHandler(
         // 3. 添加按钮
         val visibleButtons = state.getVisibleButtons()
 
-        // 添加向上指示符（如果上方还有项目）
-        if (state.windowStart > 0) {
-            lines.add(ChatColor.translateAlternateColorCodes('&', "&e▲"))
-        }
-
         visibleButtons.forEach { button ->
             val isSelected = state.menuConfig.buttons.indexOf(button) == state.selectedIndex
             val buttonText = renderButton(button, isSelected, player, state)
             if (buttonText.isNotEmpty()) {
                 lines.add(ChatColor.translateAlternateColorCodes('&', buttonText))
             }
-        }
-
-        // 添加向下指示符（如果下方还有项目）
-        val windowEnd = state.windowStart + state.getWindowSize()
-        if (windowEnd < state.getTotalButtons()) {
-            lines.add(ChatColor.translateAlternateColorCodes('&', "&e▼"))
         }
 
         // 4. 添加底部
