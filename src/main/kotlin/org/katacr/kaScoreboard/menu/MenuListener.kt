@@ -1,5 +1,6 @@
 package org.katacr.kaScoreboard.menu
 
+import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -103,23 +104,28 @@ class MenuListener(
      * 处理按钮选择
      */
     private fun handleButtonSelect(player: Player, state: PlayerMenuState, button: MenuButtonConfig) {
-        // 这里可以根据按钮ID执行不同的操作
-        // 例如：打开子菜单、执行命令、传送玩家等
+        // 播放点击音效
+        player.playSound(player.location, org.bukkit.Sound.UI_BUTTON_CLICK, 1.0f, 1.0f)
 
-        // TODO: 实现按钮操作逻辑
-        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a你选择了: ${button.id}"))
+        // 如果按钮有动作，执行动作
+        if (button.actions.isNotEmpty()) {
+            // 定义菜单打开器
+            val menuOpener: (Player, String) -> Unit = { p, menuName ->
+                plugin.menuHandler.openMenu(p, menuName)
+            }
 
-        // 可以根据按钮的ID执行不同操作
-        when (button.id) {
-            "button-1" -> {
-                // 示例：打开传送菜单
-                // plugin.menuHandler.openMenu(player, "teleport_menu")
-            }
-            "button-2" -> {
-                // 示例：打开商店
-                // plugin.menuHandler.openMenu(player, "shop_menu")
-            }
-            // 其他按钮...
+            // 异步执行动作列表
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+                MenuActions.executeActionList(
+                    player,
+                    button.actions,
+                    menuOpener,
+                    state.menuConfig
+                )
+            })
+        } else {
+            // 没有动作，显示提示信息
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a你选择了: ${button.id}"))
         }
     }
 

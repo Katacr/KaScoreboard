@@ -1,0 +1,103 @@
+# 动作测试菜单
+name: "动作测试菜单"
+description: "用于测试各种按钮动作功能"
+type: MENU
+
+# 滚动模式: loop（循环滚动）或 clamp（边界停止）
+scroll-mode: clamp
+
+# 计分板标题
+title:
+  update: 5
+  text: '&c动作测试菜单'
+
+# 菜单构建内容
+header:
+  intro:
+    update: -1
+    text: '测试各种动作功能'
+
+footer:
+  text1:
+    update: -1
+    text: '滚轮滚动菜单'
+  text2:
+    update: -1
+    text: '左键选择'
+  text3:
+    update: -1
+    text: '右键返回'
+
+buttons:
+  button-1:
+    update: -1
+    text:
+      un-selected: '&7Tell 消息'
+      selected: '&aTell 消息'
+    actions:
+      - 'tell: &e你点击了按钮1！'
+      - 'tell: &7这是一个普通消息示例'
+
+  button-2:
+    update: -1
+    text:
+      un-selected: '&7ActionBar'
+      selected: '&aActionBar'
+    actions:
+      - 'actionbar: &6这是一个 ActionBar 消息！'
+
+  button-3:
+    update: -1
+    text:
+      un-selected: '&7执行指令'
+      selected: '&a执行指令'
+    actions:
+      - 'tell: &e正在执行指令...'
+      - 'console: say %player_name% 测试了按钮3'
+
+  button-4:
+    update: -1
+    text:
+      un-selected: '&7播放声音'
+      selected: '&a播放声音'
+    actions:
+      - 'sound: entity.player.levelup;volume=1.0;pitch=1.0'
+
+  button-5:
+    update: -1
+    text:
+      un-selected: '&7条件判断'
+      selected: '&a条件判断'
+    actions:
+      - condition: '%player_is_op% == true'
+        actions:
+          - 'tell: &a你是一个管理员！'
+          - 'sound: entity.experience_orb.pickup'
+        deny:
+          - 'tell: &c你不是一个管理员！'
+          - 'sound: entity.villager.no'
+
+  button-6:
+    update: -1
+    text:
+      un-selected: '&7延迟动作'
+      selected: '&a延迟动作'
+    actions:
+      - 'tell: &e开始执行...'
+      - 'wait: 20'
+      - 'tell: &a1秒后'
+      - 'wait: 20'
+      - 'tell: &b2秒后'
+      - 'wait: 20'
+      - 'tell: &c3秒后完成！'
+
+  button-7:
+    update: -1
+    text:
+      un-selected: '&7关闭菜单'
+      selected: '&a关闭菜单'
+    actions:
+      - 'tell: &e正在关闭菜单...'
+      - 'wait: 10'
+      - 'tell: &a再见！'
+      - 'close'

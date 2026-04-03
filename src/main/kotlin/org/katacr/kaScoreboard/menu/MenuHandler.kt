@@ -219,7 +219,7 @@ class MenuHandler(
         state: PlayerMenuState
     ): String {
         val key = "button_${button.id}"
-        var index = state.getTextIndex(key)
+        val index = state.getTextIndex(key)
 
         // 获取对应状态的条件和文本
         val conditions = button.getConditions(isSelected)
@@ -231,33 +231,31 @@ class MenuHandler(
             val conditionalTextList = mutableListOf<String>()
 
             for (condition in conditions) {
-                if (condition is Map<*, *>) {
-                    val condStr = condition["condition"] as? String
-                    val allow = condition["allow"]
-                    val deny = condition["deny"]
+                val condStr = condition["condition"] as? String
+                val allow = condition["allow"]
+                val deny = condition["deny"]
 
-                    // 检查条件
-                    val conditionMet = if (condStr != null) {
-                        CU.checkCondition(player, condStr)
-                    } else {
-                        false
-                    }
-
-                    // 根据条件获取文本
-                    val target = if (conditionMet) allow else deny
-
-                    // 提取文本（支持字符串和列表）
-                    when (target) {
-                        is String -> if (target.isNotEmpty()) conditionalTextList.add(target)
-                        is List<*> -> {
-                            val strings = target.filterIsInstance<String>()
-                            conditionalTextList.addAll(strings)
-                        }
-                    }
-
-                    // 如果找到了文本，停止检查其他条件
-                    if (conditionalTextList.isNotEmpty()) break
+                // 检查条件
+                val conditionMet = if (condStr != null) {
+                    CU.checkCondition(player, condStr)
+                } else {
+                    false
                 }
+
+                // 根据条件获取文本
+                val target = if (conditionMet) allow else deny
+
+                // 提取文本（支持字符串和列表）
+                when (target) {
+                    is String -> if (target.isNotEmpty()) conditionalTextList.add(target)
+                    is List<*> -> {
+                        val strings = target.filterIsInstance<String>()
+                        conditionalTextList.addAll(strings)
+                    }
+                }
+
+                // 如果找到了文本，停止检查其他条件
+                if (conditionalTextList.isNotEmpty()) break
             }
 
             // 获取文本（使用索引循环显示）
@@ -297,7 +295,7 @@ class MenuHandler(
         return if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             try {
                 me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, text)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 text
             }
         } else {

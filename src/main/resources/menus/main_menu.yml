@@ -46,104 +46,111 @@ buttons:
   button-1:
     update: -1
     text:
-      un-selected: '&7button-1'
-      selected: '&abutton-1'
+      un-selected: '&7Tell 消息'
+      selected: '&aTell 消息'
+    actions:
+      - 'tell: &e你点击了按钮1！'
+      - 'actionbar: &a这是一个 ActionBar 消息'
+
   button-2:
     update: -1
     text:
-      un-selected: '&7button-2'
-      selected: '&abutton-2'
+      un-selected: '&7执行指令'
+      selected: '&a执行指令'
+    actions:
+      - 'tell: &e正在执行指令...'
+      - 'console: say %player_name% 点击了按钮2'
+
   button-3:
     update: -1
     text:
-      un-selected: '&7button-3'
-      selected: '&abutton-3'
+      un-selected: '&7播放声音'
+      selected: '&a播放声音'
+    actions:
+      - 'tell: &e正在播放声音...'
+      - 'sound: entity.player.levelup;volume=1.5;pitch=1.2'
+
   button-4:
     update: -1
     text:
-      un-selected: '&7button-4'
-      selected: '&abutton-4'
+      un-selected: '&7条件判断'
+      selected: '&a条件判断'
+    actions:
+      - condition: '%player_is_op% == true'
+        actions:
+          - 'tell: &a你是一个管理员！'
+          - 'sound: entity.experience_orb.pickup'
+        deny:
+          - 'tell: &c你不是一个管理员！'
+          - 'sound: entity.villager.no'
+
   button-5:
     update: -1
     text:
-      un-selected: '&7button-5'
-      selected: '&abutton-5'
+      un-selected: '&7关闭菜单'
+      selected: '&a关闭菜单'
+    actions:
+      - 'tell: &e正在关闭菜单...'
+      - 'wait: 20'
+      - 'tell: &a菜单已关闭'
+      - 'close'
+
   button-6:
     update: -1
     text:
       un-selected: '&7button-6'
       selected: '&abutton-6'
+
   button-7:
     update: -1
     text:
       un-selected: '&7button-7'
       selected: '&abutton-7'
+
   button-8:
     update: -1
     text:
       un-selected: '&7button-8'
       selected: '&abutton-8'
+
   button-9:
     update: -1
     text:
       un-selected: '&7button-9'
       selected: '&abutton-9'
+
   button-10:
-
     update: -1
-
     text:
-
       un-selected: '&7button-10'
-
       selected: '&abutton-10'
 
   button-11:
-
     update: -1
-
     text:
-
       un-selected: '&7button-11'
-
       selected: '&abutton-11'
 
   button-12:
-
     update: -1
-
     text:
-
       un-selected: '&7button-12'
-
       selected: '&abutton-12'
 
   button-13:
-
     update: -1
-
     text:
-
       un-selected: '&7button-13'
-
       selected: '&abutton-13'
 
   button-14:
-
     update: -1
-
     text:
-
       un-selected: '&7button-14'
-
       selected: '&abutton-14'
 
   button-15:
-
     update: -1
-
     text:
-
       un-selected: '&7button-15'
-
       selected: '&abutton-15'

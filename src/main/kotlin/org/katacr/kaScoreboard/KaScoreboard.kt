@@ -3,6 +3,7 @@ package org.katacr.kaScoreboard
 import net.byteflux.libby.BukkitLibraryManager
 import net.byteflux.libby.Library
 import org.bukkit.plugin.java.JavaPlugin
+import org.katacr.kaScoreboard.menu.MenuActions
 import org.katacr.kaScoreboard.menu.MenuHandler
 import org.katacr.kaScoreboard.menu.MenuListener
 import org.katacr.kaScoreboard.menu.MenuManager
@@ -87,6 +88,9 @@ class KaScoreboard : JavaPlugin() {
         // 初始化菜单处理器
         menuHandler = MenuHandler(this)
         menuHandler.loadMenus()
+
+        // 初始化菜单动作处理器
+        MenuActions.init(this)
 
         // 注册监听器
         server.pluginManager.registerEvents(ScoreboardListener(this), this)

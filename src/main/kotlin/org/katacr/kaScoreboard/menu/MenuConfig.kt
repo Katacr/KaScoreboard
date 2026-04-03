@@ -12,7 +12,8 @@ data class MenuButtonConfig(
     val unselectedText: List<String>,    // 未选中状态文本列表（已解析条件）
     val selectedText: List<String>,      // 选中状态文本列表（已解析条件）
     val unselectedConditions: List<Map<*, *>>,  // 未选中状态条件判断列表
-    val selectedConditions: List<Map<*, *>>     // 选中状态条件判断列表
+    val selectedConditions: List<Map<*, *>>,     // 选中状态条件判断列表
+    val actions: List<*>                 // 点击动作列表
 ) {
     /**
      * 根据选中状态获取文本列表
@@ -230,6 +231,9 @@ object MenuConfigParser {
         // 解析选中状态文本和条件
         val (selectedTexts, selectedConditions) = parseButtonTextSection(textSection, "selected")
 
+        // 解析动作列表
+        val actions = config.getList("$path.actions") ?: emptyList<Any>()
+
         if (unselectedTexts.isEmpty() && selectedTexts.isEmpty() && unselectedConditions.isEmpty() && selectedConditions.isEmpty()) {
             return null
         }
@@ -240,7 +244,8 @@ object MenuConfigParser {
             unselectedText = unselectedTexts,
             selectedText = selectedTexts,
             unselectedConditions = unselectedConditions,
-            selectedConditions = selectedConditions
+            selectedConditions = selectedConditions,
+            actions = actions
         )
     }
 
