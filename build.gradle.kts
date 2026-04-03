@@ -39,6 +39,7 @@ dependencies {
     }
     compileOnly("com.zaxxer:HikariCP:5.1.0")
     implementation("fr.mrmicky:fastboard:2.1.5")
+    compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
 }
 
 kotlin {

@@ -3,7 +3,11 @@ version: ${version}
 main: org.katacr.kaScoreboard.KaScoreboard
 api-version: 1.18
 author: Katacr
-description: 一个轻量级的计分板插件，支持PAPI和自定义内容
+description: 一个轻量级的计分板插件，支持PAPI和自定义内容。菜单ActionBar功能需要安装ProtocolLib插件。
+softdepend:
+  - ProtocolLib
+  - PlaceholderAPI
+  - Vault
 commands:
   kascoreboard:
     description: KaScoreboard 主命令

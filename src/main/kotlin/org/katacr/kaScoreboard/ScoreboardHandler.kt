@@ -154,7 +154,7 @@ class ScoreboardHandler(private val plugin: KaScoreboard) {
      */
     private fun parseLineConfig(config: YamlConfiguration, path: String): LineConfig? {
         val updateInterval = config.getLong("$path.update", -1)
-        val textList = config.getList("$path.text") as? List<*>
+        val textList = config.getList("$path.text")
 
         if (textList.isNullOrEmpty()) return null
 

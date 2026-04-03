@@ -46,6 +46,30 @@ buttons:
     actions:
       - 'actionbar: &6这是一个 ActionBar 消息！'
 
+  button-2-5:
+    update: -1
+    text:
+      un-selected: '&7Toast-Task'
+      selected: '&aToast-Task'
+    actions:
+      - 'toast: frame=task;icon=diamond;title=钻石奖励;description=你获得了一颗钻石！'
+
+  button-2-6:
+    update: -1
+    text:
+      un-selected: '&7Toast-Goal'
+      selected: '&aToast-Goal'
+    actions:
+      - 'toast: frame=goal;icon=diamond_sword;title=击杀Boss;description=恭喜你击败了末影龙！'
+
+  button-2-7:
+    update: -1
+    text:
+      un-selected: '&7Toast-Challenge'
+      selected: '&aToast-Challenge'
+    actions:
+      - 'toast: frame=challenge;icon=nether_star;title=终极挑战;description=完成不可能的任务！'
+
   button-3:
     update: -1
     text:

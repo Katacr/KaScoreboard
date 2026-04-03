@@ -1,12 +1,16 @@
 package org.katacr.kaScoreboard.menu
 
 import org.bukkit.Bukkit
+import org.bukkit.Sound
 import org.bukkit.ChatColor
 import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 import org.katacr.kaScoreboard.ConditionUtils
 import org.katacr.kaScoreboard.KaScoreboard
 import java.util.concurrent.CompletableFuture
+import com.comphenix.protocol.*
+import com.comphenix.protocol.wrappers.*
+import me.clip.placeholderapi.PlaceholderAPI
 
 /**
  * 菜单动作处理器
@@ -14,11 +18,6 @@ import java.util.concurrent.CompletableFuture
  */
 object MenuActions {
     private var plugin: KaScoreboard? = null
-
-    // NMS 相关的反射缓存
-    private val nmsVersion by lazy {
-        Bukkit.getServer().javaClass.`package`.name.split(".")[3]
-    }
 
     /**
      * 设置插件引用
@@ -28,106 +27,147 @@ object MenuActions {
     }
 
     /**
-     * 发送 ActionBar 消息（Spigot 兼容版本）
-     * 使用 NMS 数据包发送，支持所有 Spigot 版本
+     * 发送 ActionBar 消息（ProtocolLib 版本）
+     * 需要安装 ProtocolLib 插件
      */
     private fun sendActionBar(player: Player, message: String) {
+        // 检查 ProtocolLib 是否可用
+        if (!Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
+            plugin?.logger?.severe("ActionBar 功能需要 ProtocolLib 插件！请安装 ProtocolLib。")
+            return
+        }
+
         try {
-            // 获取 NMS 的 IChatBaseComponent 类
-            val iChatBaseComponentClass = Class.forName("net.minecraft.server.$nmsVersion.IChatBaseComponent")
+            val protocolManager = ProtocolLibrary.getProtocolManager()
 
-            // 将文本转换为 JSON 格式
-            val jsonText = "{\"text\":\"$message\"}"
-
-            // 反序列化为 IChatBaseComponent
-            val component = try {
-                // 尝试使用 IChatBaseComponent.ChatSerializer (新版本)
-                val chatSerializerClass = Class.forName("net.minecraft.server.$nmsVersion.IChatBaseComponent\$ChatSerializer")
-                chatSerializerClass.getDeclaredMethod("a", String::class.java)
-                    .invoke(null, jsonText)
+            // 在 ProtocolLib 1.17+ 中，TITLE 包被拆分为独立的包
+            // 优先使用新的 SET_ACTION_BAR_TEXT 包
+            val packet = try {
+                protocolManager.createPacket(PacketType.Play.Server.SET_ACTION_BAR_TEXT)
             } catch (e: Exception) {
-                // 回退到 MinecraftServer.a (旧版本)
-                try {
-                    val minecraftServerClass = Class.forName("net.minecraft.server.$nmsVersion.MinecraftServer")
-                    minecraftServerClass.getDeclaredMethod("a", String::class.java)
-                        .invoke(null, jsonText)
-                } catch (e2: Exception) {
-                    // 回退到 ChatComponentText (最旧版本)
-                    val chatComponentTextClass = Class.forName("net.minecraft.server.$nmsVersion.ChatComponentText")
-                    chatComponentTextClass.getConstructor(String::class.java).newInstance(message)
-                }
+                // 回退到旧的 TITLE 包（1.16及以下）
+                protocolManager.createPacket(PacketType.Play.Server.TITLE)
             }
 
-            // 获取 PacketPlayOutTitle 类
-            val packetPlayOutTitleClass = Class.forName("net.minecraft.server.$nmsVersion.PacketPlayOutTitle")
+            // 设置消息内容
+            val component = WrappedChatComponent.fromText(message)
 
-            // 获取 EnumTitleAction
-            val enumTitleActionClass = Class.forName("net.minecraft.server.$nmsVersion.EnumTitleAction")
-
-            // 获取 ActionBar 字段（新版本）或通过反射获取（旧版本）
-            val actionBar = try {
-                packetPlayOutTitleClass.getDeclaredField("ACTIONBAR").get(null)
+            try {
+                // 新版本的 SET_ACTION_BAR_TEXT 包使用直接的消息字段
+                packet.chatComponents.write(0, component)
             } catch (e: Exception) {
-                // 尝试通过 values() 方法获取
-                enumTitleActionClass.getDeclaredMethod("values").invoke(null)
-                    .let { it as Array<*> }
-                    .find { it?.toString()?.contains("actionbar", ignoreCase = true) == true }
-            }
-
-            // 创建 ActionBar 数据包
-            val actionBarPacket = try {
-                // 新版本构造器 (6个参数)
-                packetPlayOutTitleClass.getDeclaredConstructor(
-                    enumTitleActionClass,
-                    iChatBaseComponentClass,
-                    Int::class.javaPrimitiveType,
-                    Int::class.javaPrimitiveType,
-                    Int::class.javaPrimitiveType
-                ).newInstance(actionBar, component, 10, 70, 20)
-            } catch (e: Exception) {
-                // 旧版本构造器 (5个参数，没有淡入/淡出参数)
-                try {
-                    packetPlayOutTitleClass.getDeclaredConstructor(
-                        enumTitleActionClass,
-                        iChatBaseComponentClass
-                    ).newInstance(actionBar, component)
-                } catch (e2: Exception) {
-                    // 最旧版本构造器 (3个参数)
-                    packetPlayOutTitleClass.getDeclaredConstructor(
-                        iChatBaseComponentClass,
-                        iChatBaseComponentClass,
-                        iChatBaseComponentClass
-                    ).newInstance(null, component, null)
-                }
-            }
-
-            // 获取 CraftPlayer 和 NMS Player
-            val craftPlayerClass = Class.forName("org.bukkit.craftbukkit.$nmsVersion.entity.CraftPlayer")
-            val craftPlayer = craftPlayerClass.cast(player)
-
-            val getHandleMethod = craftPlayerClass.getDeclaredMethod("getHandle")
-            val nmsPlayer = getHandleMethod.invoke(craftPlayer)
-
-            // 获取 PlayerConnection (尝试不同的字段名)
-            val playerConnectionClass = Class.forName("net.minecraft.server.$nmsVersion.PlayerConnection")
-            val playerConnection = try {
-                // 新版本: connection
-                val connectionField = nmsPlayer.javaClass.getDeclaredField("connection")
-                connectionField.isAccessible = true
-                connectionField.get(nmsPlayer)
-            } catch (e: Exception) {
-                // 旧版本: b
-                val bField = nmsPlayer.javaClass.getDeclaredField("b")
-                bField.isAccessible = true
-                bField.get(nmsPlayer)
+                // 旧版本的 TITLE 包需要设置 TitleAction 和消息
+                val action = EnumWrappers.TitleAction.ACTIONBAR
+                packet.titleActions.write(0, action)
+                packet.chatComponents.write(0, component)
             }
 
             // 发送数据包
-            val packetClass = Class.forName("net.minecraft.server.$nmsVersion.Packet")
-            val sendPacketMethod = playerConnectionClass.getDeclaredMethod("sendPacket", packetClass)
-            sendPacketMethod.invoke(playerConnection, actionBarPacket)
+            protocolManager.sendServerPacket(player, packet)
         } catch (e: Exception) {
             plugin?.logger?.warning("发送 ActionBar 失败: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * 解析并发送标题
+     * 格式: title=主标题;subtitle=副标题;in=淡入时长;keep=停留时长;out=淡出时长
+     */
+    private fun sendTitle(player: Player, args: String) {
+        // 检查 ProtocolLib 是否可用
+        if (!Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
+            plugin?.logger?.severe("Title 功能需要 ProtocolLib 插件！请安装 ProtocolLib。")
+            return
+        }
+
+        var title = ""
+        var subtitle = ""
+        var fadeIn = 10   // 默认淡入 0.5 秒（10 ticks）
+        var stay = 70     // 默认停留 3.5 秒（70 ticks）
+        var fadeOut = 20  // 默认淡出 1 秒（20 ticks）
+
+        // 解析参数
+        args.split(";").forEach { param ->
+            val parts = param.split("=", limit = 2)
+            if (parts.size == 2) {
+                val key = parts[0].trim().lowercase()
+                val value = parts[1].trim()
+                when (key) {
+                    "title" -> title = value
+                    "subtitle" -> subtitle = value
+                    "in" -> fadeIn = value.toIntOrNull()?.coerceAtLeast(0) ?: fadeIn
+                    "keep" -> stay = value.toIntOrNull()?.coerceAtLeast(0) ?: stay
+                    "out" -> fadeOut = value.toIntOrNull()?.coerceAtLeast(0) ?: fadeOut
+                }
+            }
+        }
+
+        try {
+            val protocolManager = ProtocolLibrary.getProtocolManager()
+
+            // 尝试使用新版本协议（1.17+）
+            val isNewVersion = try {
+                protocolManager.createPacket(PacketType.Play.Server.SET_TITLE_TEXT)
+                true
+            } catch (e: Exception) {
+                false
+            }
+
+            if (isNewVersion) {
+                // 新版本：使用独立的数据包
+                // 1. 设置副标题（如果有）
+                if (subtitle.isNotEmpty()) {
+                    val subtitlePacket = protocolManager.createPacket(PacketType.Play.Server.SET_SUBTITLE_TEXT)
+                    val subtitleComponent = WrappedChatComponent.fromText(ChatColor.translateAlternateColorCodes('&', subtitle))
+                    subtitlePacket.chatComponents.write(0, subtitleComponent)
+                    protocolManager.sendServerPacket(player, subtitlePacket)
+                }
+
+                // 2. 设置动画时间
+                val timesPacket = protocolManager.createPacket(PacketType.Play.Server.SET_TITLES_ANIMATION)
+                timesPacket.integers.write(0, fadeIn)
+                timesPacket.integers.write(1, stay)
+                timesPacket.integers.write(2, fadeOut)
+                protocolManager.sendServerPacket(player, timesPacket)
+
+                // 3. 设置主标题并显示
+                if (title.isNotEmpty()) {
+                    val titlePacket = protocolManager.createPacket(PacketType.Play.Server.SET_TITLE_TEXT)
+                    val titleComponent = WrappedChatComponent.fromText(ChatColor.translateAlternateColorCodes('&', title))
+                    titlePacket.chatComponents.write(0, titleComponent)
+                    protocolManager.sendServerPacket(player, titlePacket)
+                }
+            } else {
+                // 旧版本（1.16及以下）：使用单一的 TITLE 包
+                // 1. 设置副标题
+                if (subtitle.isNotEmpty()) {
+                    val subtitlePacket = protocolManager.createPacket(PacketType.Play.Server.TITLE)
+                    subtitlePacket.titleActions.write(0, EnumWrappers.TitleAction.SUBTITLE)
+                    val subtitleComponent = WrappedChatComponent.fromText(ChatColor.translateAlternateColorCodes('&', subtitle))
+                    subtitlePacket.chatComponents.write(0, subtitleComponent)
+                    protocolManager.sendServerPacket(player, subtitlePacket)
+                }
+
+                // 2. 设置动画时间
+                val timesPacket = protocolManager.createPacket(PacketType.Play.Server.TITLE)
+                timesPacket.titleActions.write(0, EnumWrappers.TitleAction.TIMES)
+                timesPacket.integers.write(0, fadeIn)
+                timesPacket.integers.write(1, stay)
+                timesPacket.integers.write(2, fadeOut)
+                protocolManager.sendServerPacket(player, timesPacket)
+
+                // 3. 设置主标题并显示
+                if (title.isNotEmpty()) {
+                    val titlePacket = protocolManager.createPacket(PacketType.Play.Server.TITLE)
+                    titlePacket.titleActions.write(0, EnumWrappers.TitleAction.TITLE)
+                    val titleComponent = WrappedChatComponent.fromText(ChatColor.translateAlternateColorCodes('&', title))
+                    titlePacket.chatComponents.write(0, titleComponent)
+                    protocolManager.sendServerPacket(player, titlePacket)
+                }
+            }
+        } catch (e: Exception) {
+            plugin?.logger?.warning("发送 Title 失败: ${e.message}")
             e.printStackTrace()
         }
     }
@@ -141,7 +181,7 @@ object MenuActions {
         // PlaceholderAPI 变量替换
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             try {
-                result = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, result)
+                result = PlaceholderAPI.setPlaceholders(player, result)
             } catch (_: Exception) {
                 // PAPI 解析失败，忽略
             }
@@ -255,6 +295,12 @@ object MenuActions {
                 sendActionBar(player, ChatColor.translateAlternateColorCodes('&', message))
             }
 
+            // title: 标题消息
+            finalCmd.startsWith("title:", ignoreCase = true) -> {
+                val args = finalCmd.removePrefix("title:").trim()
+                sendTitle(player, args)
+            }
+
             // command: 玩家执行指令（需要主线程）
             finalCmd.startsWith("command:", ignoreCase = true) -> {
                 val cmd = finalCmd.removePrefix("command:").trim()
@@ -360,7 +406,7 @@ object MenuActions {
 
         if (soundName.isNotEmpty()) {
             try {
-                val sound = org.bukkit.Sound.valueOf(soundName.uppercase())
+                val sound = Sound.valueOf(soundName.uppercase())
                 player.playSound(player.location, sound, category, volume, pitch)
             } catch (e: IllegalArgumentException) {
                 plugin?.logger?.warning("未知的声音: $soundName")
